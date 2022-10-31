@@ -1,4 +1,8 @@
-const { validateEmail, validateLength } = require("../helpers/validation");
+const {
+  validateEmail,
+  validateLength,
+  uniqueUsername,
+} = require("../helpers/validation");
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 
@@ -45,11 +49,14 @@ const register = async (req, res) => {
 
     const cryptoPassword = await bcrypt.hash(password, 12);
 
+    let tempUsername = first_name + last_name;
+    let newUsername = await uniqueUsername(tempUsername);
+
     const user = await new User({
       first_name,
       last_name,
       email,
-      username,
+      username: newUsername,
       password: cryptoPassword,
       bYear,
       bMonth,

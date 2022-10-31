@@ -1,3 +1,5 @@
+const User = require("../models/User");
+
 exports.validateEmail = (email) => {
   return String(email)
     .toLowerCase()
@@ -11,4 +13,21 @@ exports.validateLength = (text, min, max) => {
     return false;
   }
   return true;
+};
+
+//unique username creator
+exports.uniqueUsername = async (username) => {
+  let flag = false;
+
+  do {
+    let check = await User.findOne({ username });
+    if (check) {
+      //change username
+      username += (+new Date() * Math.random()).toString().substring(0, 1);
+      flag = true;
+    } else {
+      flag = false;
+    }
+  } while (flag);
+  return username;
 };
