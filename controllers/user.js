@@ -3,8 +3,13 @@ const {
   validateLength,
   uniqueUsername,
 } = require("../helpers/validation");
+const { generateToken } = require("../helpers/token");
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
+const { sendVerificationEmail } = require("../helpers/mailer");
+const jwt = require("jsonwebtoken");
+// const dotenv = require("dotenv");
+// dotenv.config();
 
 const register = async (req, res) => {
   try {
@@ -64,7 +69,78 @@ const register = async (req, res) => {
       gender,
     }).save();
 
-    res.json(user);
+    const emailVerificationToken = generateToken(
+      { id: user._id.toString() },
+      "30m"
+    );
+
+    const url = `http://localhost:3000/activate/${emailVerificationToken}`;
+    sendVerificationEmail(user.email, user.first_name, url);
+
+    const token = generateToken({ id: user._id.toString() }, "7d");
+    res.send({
+      id: user._id,
+      username: user.username,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      token: token,
+      verified: user.verified,
+      message: "Register Success. Please activate your email to start.",
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const activateAccount = async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    const user = jwt.verify(token, process.env.TOKEN_SECRET);
+    const check = await User.findById(user.id);
+    if (check.verified === true) {
+      return res
+        .status(400)
+        .send({ message: "This email is already activated." });
+    } else {
+      await User.findByIdAndUpdate(user.id, { verified: true });
+      return res
+        .status(200)
+        .json({ message: "Account has been activated successfully. " });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).send({
+        message:
+          "The email address you entered is not connected to an account.",
+      });
+    }
+
+    const check = await bcrypt.compare(password, user.password);
+    if (check) {
+      const token = generateToken({ id: user._id.toString() }, "7d");
+      res.send({
+        id: user._id,
+        username: user.username,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        token: token,
+        verified: user.verified,
+        message: "Register Success. Please activate your email to start.",
+      });
+    } else {
+      return res.status(400).send({
+        message: "Invalid email or password.",
+      });
+    }
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -72,4 +148,6 @@ const register = async (req, res) => {
 
 module.exports = {
   register,
+  activateAccount,
+  login,
 };
