@@ -15,7 +15,7 @@ exports.validateLength = (text, min, max) => {
   return true;
 };
 
-//unique username creator
+//unique username generator
 exports.uniqueUsername = async (username) => {
   let flag = false;
 

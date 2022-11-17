@@ -36,7 +36,7 @@ app.use(express.json());
 //bodypraser middleware
 app.use(bodyParser.json());
 
-// dynamic routes setup
+// dynamic routes import from routes folder
 readdirSync("./routes").map((r) => app.use("/", require("./routes/" + r)));
 
 // routers

@@ -34,7 +34,8 @@ const userSchema = mongoose.Schema(
     },
     picture: {
       type: String,
-      default: "",
+      default:
+        "https://img.freepik.com/premium-vector/man-avatar-profile-picture-vector-illustration_268834-538.jpg?w=2000",
     },
     cover: {
       type: String,

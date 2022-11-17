@@ -83,6 +83,7 @@ const register = async (req, res) => {
       username: user.username,
       first_name: user.first_name,
       last_name: user.last_name,
+      picture: user?.picture,
       token: token,
       verified: user.verified,
       message: "Register Success. Please activate your email to start.",
@@ -132,9 +133,9 @@ const login = async (req, res) => {
         username: user.username,
         first_name: user.first_name,
         last_name: user.last_name,
+        picture: user?.picture,
         token: token,
         verified: user.verified,
-        message: "Register Success. Please activate your email to start.",
       });
     } else {
       return res.status(400).send({
@@ -146,8 +147,13 @@ const login = async (req, res) => {
   }
 };
 
+const auth = (req, res) => {
+  res.send("Hello from auth");
+};
+
 module.exports = {
   register,
   activateAccount,
   login,
+  auth,
 };
