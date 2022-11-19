@@ -16,7 +16,7 @@ exports.validateLength = (text, min, max) => {
 };
 
 //unique username generator
-exports.uniqueUsername = async (username) => {
+exports.generateUniqueUsername = async (username) => {
   let flag = false;
 
   do {
