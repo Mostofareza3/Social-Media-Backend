@@ -11,6 +11,7 @@ const bcrypt = require("bcrypt");
 const { sendVerificationEmail, sendResetCode } = require("../helpers/mailer");
 const generateCode = require("../helpers/genarateCode");
 const { generateToken } = require("../helpers/token");
+const Code = require("../models/Code");
 
 exports.register = async (req, res) => {
   try {
@@ -74,7 +75,10 @@ exports.register = async (req, res) => {
       { id: user._id.toString() },
       "30m"
     );
-    const url = `${process.env.BASE_URL}/activate/${emailVerificationToken}`;
+
+    const url = `${
+      process.env.BASE_URL || "http://localhost:3000"
+    }/activate/${emailVerificationToken}`;
     sendVerificationEmail(user.email, user.first_name, url);
     const token = generateToken({ id: user._id.toString() }, "7d");
     res.send({
@@ -160,7 +164,9 @@ exports.sendVerification = async (req, res) => {
       { id: user._id.toString() },
       "30m"
     );
-    const url = `${process.env.BASE_URL}/activate/${emailVerificationToken}`;
+    const url = `${
+      process.env.BASE_URL || "http://localhost:3000"
+    }/activate/${emailVerificationToken}`;
     sendVerificationEmail(user.email, user.first_name, url);
     return res.status(200).json({
       message: "Email verification link has been sent to your email.",
