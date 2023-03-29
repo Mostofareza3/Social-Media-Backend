@@ -1,6 +1,6 @@
 const cloudinary = require("cloudinary");
-// const { removeTmp } = require("../middleware/imageUpload.js");
 const fs = require("fs");
+const path = require("path");
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
   api_key: process.env.CLOUD_API_KEY,
@@ -9,9 +9,7 @@ cloudinary.config({
 exports.uploadImages = async (req, res) => {
   try {
     const { path } = req.body;
-    console.log(path);
     let files = Object.values(req.files).flat();
-    console.log(files);
     let images = [];
     for (const file of files) {
       const url = await uploadToCloudinary(file, path);
@@ -22,6 +20,21 @@ exports.uploadImages = async (req, res) => {
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
+};
+exports.listImages = async (req, res) => {
+  const { path, sort, max } = req.body;
+
+  cloudinary.v2.search
+    .expression(`${path}`)
+    .sort_by("created_at", `${sort}`)
+    .max_results(max)
+    .execute()
+    .then((result) => {
+      res.json(result);
+    })
+    .catch((err) => {
+      console.log(err.error.message);
+    });
 };
 
 const uploadToCloudinary = async (file, path) => {

@@ -23,9 +23,10 @@ const userSchema = mongoose.Schema(
       text: true,
       unique: true,
     },
+
     email: {
       type: String,
-      required: [true, "Email is required"],
+      required: [true, "email is required"],
       trim: true,
     },
     password: {
@@ -34,8 +35,9 @@ const userSchema = mongoose.Schema(
     },
     picture: {
       type: String,
+      trim: true,
       default:
-        "https://img.freepik.com/premium-vector/man-avatar-profile-picture-vector-illustration_268834-538.jpg?w=2000",
+        "https://res.cloudinary.com/dmhcnhtng/image/upload/v1643044376/avatars/default_pic_jeaybr.png",
     },
     cover: {
       type: String,
@@ -65,27 +67,40 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    friends: {
-      type: Array,
-      default: [],
-    },
-    following: {
-      type: Array,
-      default: [],
-    },
-    followers: {
-      type: Array,
-      default: [],
-    },
-    requests: {
-      type: Array,
-      default: [],
-    },
+    friends: [
+      {
+        type: ObjectId,
+        ref: "User",
+      },
+    ],
+    following: [
+      {
+        type: ObjectId,
+        ref: "User",
+      },
+    ],
+    followers: [
+      {
+        type: ObjectId,
+        ref: "User",
+      },
+    ],
+    requests: [
+      {
+        type: ObjectId,
+        ref: "User",
+      },
+    ],
     search: [
       {
         user: {
           type: ObjectId,
           ref: "User",
+          required: true,
+        },
+        createdAt: {
+          type: Date,
+          required: true,
         },
       },
     ],
@@ -122,16 +137,18 @@ const userSchema = mongoose.Schema(
         type: String,
       },
     },
-    savedPosts: {
-      post: {
-        type: ObjectId,
-        ref: "Post",
+    savedPosts: [
+      {
+        post: {
+          type: ObjectId,
+          ref: "Post",
+        },
+        savedAt: {
+          type: Date,
+          required: true,
+        },
       },
-      savedAt: {
-        type: Date,
-        default: new Date(),
-      },
-    },
+    ],
   },
   {
     timestamps: true,
